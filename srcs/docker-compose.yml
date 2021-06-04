@@ -1,0 +1,15 @@
+version: '3'
+services:
+    NGINX:
+        build: ./srcs/requirements/nginx/Dockerfile
+        restart: always
+
+    db:
+        build: ./srcs/requirements/mariadb/Dockerfile
+        restart: always
+
+    wordpress:
+        build: ./srcs/requirements/wordpress/Dockerfile
+        volumes:
+            - db_data:/home/slescure/data
+        restart: always
