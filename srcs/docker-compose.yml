@@ -9,6 +9,8 @@ services:
         restart: always
 
     wordpress:
+        depends_on :
+            - db
         build: ./srcs/requirements/wordpress/Dockerfile
         volumes:
             - db_data:/home/slescure/data
