@@ -7,7 +7,7 @@ server {
     ssl on;
 	ssl_protocols		TLSv1.3;
 	ssl_certificate /etc/ssl/slescure.42.fr.pem;
-	ssl_certificate /etc/ssl/slescure.42.fr.key;
+	ssl_certificate_key /etc/ssl/slescure.42.fr.key;
 
 	index index.html index.htm index.nginx-debian.html;
 
