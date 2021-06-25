@@ -23,6 +23,7 @@ services:
         ports : "9000:9000"
         volumes:
             - /home/slescure/data/wordpress:/var/www/html
+
         restart: always
         environment:
             WORDPRESS_DB_HOST=${WORDPRESS_DB_HOST}
