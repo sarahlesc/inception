@@ -1,32 +1,45 @@
-version: '3.8'
+version: '3'
 services:
-    NGINX:
-        build: ./srcs/requirements/nginx/Dockerfile
-        ports: "443:443"
-        restart: always
-
     db:
-        build: ./srcs/requirements/mariadb/Dockerfile
-        ports: "3306:3306"
-        restart: always
-        environment:
-            MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWOR}
-            MYSQL_USER=${MYSQL_USER}
-            MYSQL_PASSWORD=${MYSQL_PASSWORD}
-
+        container_name: mariadb
+    	build:
+            context: ./requirements/mariadb
+            dockerfile: Dockerfile
+        image: mardiadb:v1
+    	ports:
+            - "3306:3306"
+    	environment:
+    		MYSQL_DATABASE="${MYSQL_DATABASE}"
+    		MYSQL_USER="${MYSQL_USER}"
+    		MYSQL_PASSWORD="${MYSQL_PASSWORD}"
+            MYSQL_ROOT_PASSWORD="${MYSQL_ROOT_PASSWORD}"
+    	restart: always
 
     wordpress:
+        container_name: wordpress
         depends_on :
-            - nginx
             - db
-        build: ./srcs/requirements/wordpress/Dockerfile
-        ports : "9000:9000"
-        volumes:
-            - /home/slescure/data/wordpress:/var/www/html
-
-        restart: always
+        build:
+            context: ./requirements/wordpress
+            dockerfile: Dockerfile
+        image: wordpress:v1
+        ports :
+            - "9000:9000"
         environment:
-            WORDPRESS_DB_HOST=${WORDPRESS_DB_HOST}
-            WORDPRESS_DB_NAME=${WORDPRESS_DB_NAME}
-            WORDPRESS_DB_USER=${WORDPRESS_DB_USER}
-            WORDPRESS_DB_PASSWORD=${WORDPRESS_DB_PASSWORD}
+            WORDPRESS_DB_HOST="${WORDPRESS_DB_HOST}"
+            WORDPRESS_DB_NAME="${WORDPRESS_DB_NAME}"
+            WORDPRESS_DB_USER="${WORDPRESS_DB_USER}"
+            WORDPRESS_DB_PASSWORD="${WORDPRESS_DB_PASSWORD}"
+        restart: always
+
+    nginx:
+        container_name: nginx
+        depends_on:
+            - wordpress
+        build:
+            context: ./requirements/nginx
+            dockerfile: Dockerfile
+        image: nginx:v1
+        ports:
+            - "443:443"
+        restart: always
