@@ -3,26 +3,31 @@ FROM debian:buster
 # INSTALLATION
 RUN apt-get update -qy \
 && apt-get upgrade -qy
-RUN apt-get -yq install wget php7.3-fpm php-mysql php-fpm php-pdo php-gd php-cli php-mbstring
-
-WORKDIR /var/www
 
 # PHPMYADMIN
-RUN wget -c https://files.phpmyadmin.net/phpMyAdmin/4.9.2/phpMyAdmin-4.9.2-english.tar.gz \
-&& tar -xzvf phpMyAdmin-4.9.2-english.tar.gz
-RUN mv phpMyAdmin-4.9.2-english phpmyadmin
-COPY conf/config.inc.php phpmyadmin
-RUN chown -R www-data: phpmyadmin #donne les droits pour y avoir acces
+
+RUN apt-get -yq install wget php7.3-fpm php-mysql php-fpm php-pdo php-gd php-cli php-mbstring
 
 # WORDPRESS
-RUN wget -c https://wordpress.org/latest.tar.gz \
-&& tar -xzvf latest.tar.gz
-RUN chown -R www-data: wordpress #donne les droits pour y avoir acces
-COPY conf/wp-config.php html
 
-RUN service php7.3-fpm start
-COPY /conf/www.conf /etc/php/7.3/fpm/pool.d/www.conf
+ADD https://wordpress.org/latest.tar.gz /tmp/latest.tar.gz
+RUN cd /tmp \
+	&& tar -zxvf latest.tar.gz \
+	&& mkdir /var/www \
+	&& mkdir /var/www/html \
+	&& mv -f wordpress /var/www/html/wordpress \
+	&& chown -R www-data:www-data /var/www/html/wordpress \
+	&& chmod 755 -R /var/www/html/wordpress/
+COPY conf/wp-config.php /var/www/html/wordpress/
+RUN rm -rf /var/www/html/wordpress/wp-config-sample.php
+
+#COPY /conf/www.conf /var/www/etc/php/7.3/fpm/pool.d/www.conf
+RUN	sed -i "s/listen = \/run\/php\/php7.3-fpm.sock/listen = 9000/" "/etc/php/7.3/fpm/pool.d/www.conf"
+RUN mkdir -p /run/php/
+RUN touch /run/php/php7.3-fpm.pid
+
+CMD [ "/usr/sbin/php-fpm7.3", "--nodaemonize"]
 
 EXPOSE 9000
 
-CMD ["php-fpm7.3 -F"]
+#CMD ["php-fpm7.3 -F"]
